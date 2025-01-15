@@ -2,42 +2,49 @@ from torchvision.datasets import MNIST, CIFAR10, FashionMNIST, GTSRB, CIFAR100, 
 from torchvision import transforms
 import torch
 from torch.utils.data import Subset
+import configparser
 
+parser = configparser.ConfigParser()
+parser.read('config.ini')
+all_path = parser['dataset path']['all']
 
 def get_dataset(dataset_name, train=True, transform=None):
-
+    if dataset_name.lower() in parser.options('dataset path'):
+        path = parser['dataset path'][dataset_name]
+    else:
+        path = all_path
     if dataset_name == 'MNIST':
         if transform is None:
             transform = transforms.ToTensor()
-        ori_dataset = MNIST(root='E:/Datasets',
+        ori_dataset = MNIST(root=path,
                             train=train,
                             download=True,
                             transform=transform)
     elif dataset_name == 'FashionMNIST':
         if transform is None:
             transform = transforms.ToTensor()
-        ori_dataset = FashionMNIST(root='E:/Datasets',
+        ori_dataset = FashionMNIST(root=path,
                                    train=train,
                                    download=True,
                                    transform=transform)
     elif dataset_name == 'CIFAR10':
         if transform is None:
             transform = transforms.ToTensor()
-        ori_dataset = CIFAR10(root='E:/Datasets',
+        ori_dataset = CIFAR10(root=path,
                               train=train,
                               download=True,
                               transform=transform)
     elif dataset_name == 'CIFAR100':
         if transform is None:
             transform = transforms.ToTensor()
-        ori_dataset = CIFAR100(root='E:/Datasets',
+        ori_dataset = CIFAR100(root=path,
                                train=train,
                                download=True,
                                transform=transform)
     elif dataset_name == 'GTSRB':
         if transform is None:
             transform = transforms.ToTensor()
-        ori_dataset = GTSRB(root='E:/Datasets',
+        ori_dataset = GTSRB(root=path,
                             split='train' if train else 'test',
                             download=True,
                             transform=transform)
@@ -48,15 +55,15 @@ def get_dataset(dataset_name, train=True, transform=None):
                 transforms.ToTensor(),
             ])
         if train:
-            ori_dataset = ImageFolder(root='E:/Datasets/imagenette2-160/train',
+            ori_dataset = ImageFolder(root=f'{path}/imagenette2-160/train',
                                       transform=transform)
         else:
-            ori_dataset = ImageFolder(root='E:/Datasets/imagenette2-160/val',
+            ori_dataset = ImageFolder(root=f'{path}/imagenette2-160/val',
                                       transform=transform)
     elif dataset_name == 'SVHN':
         if transform is None:
             transform = transforms.ToTensor()
-        ori_dataset = SVHN(root='E:/Datasets',
+        ori_dataset = SVHN(root=path,
                            split='train' if train else 'test',
                            download=True,
                            transform=transform)
@@ -64,7 +71,7 @@ def get_dataset(dataset_name, train=True, transform=None):
         if transform is None:
             transform = transforms.ToTensor()
         # CelbA dataset has a split for validation set
-        ori_dataset = CelebA(root='E:/Datasets',
+        ori_dataset = CelebA(root=path,
                              split='train' if train else 'test',
                              target_type='identity',
                              download=True,
@@ -77,6 +84,9 @@ def get_dataset(dataset_name, train=True, transform=None):
 
 
 def get_subset(dataset, capacity):
+    """
+    generating a sub set with given dataset
+    """
     # indices = torch.randint(0, len(dataset), (capacity,))
     indices = torch.randperm(len(dataset))[:capacity]
     sub_set = Subset(dataset, indices)
@@ -84,5 +94,5 @@ def get_subset(dataset, capacity):
 
 
 if __name__ == '__main__':
-    train_set = get_dataset('CelebA')
+    train_set = get_dataset('MNIST')
     a = 1
